@@ -4,7 +4,6 @@ from sqlalchemy import (
     Integer,
     String,
     DateTime,
-    Text,
     Boolean
 )
 from core.database import Base
@@ -21,4 +20,4 @@ class TaskModel(Base):
     updated_at = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
     
     def __repr__(self):
-        return f""
+        return f"Task(id={self.id}, title={self.title}, is_completed={self.is_completed})"
