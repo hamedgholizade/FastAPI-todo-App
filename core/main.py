@@ -32,7 +32,8 @@ app = FastAPI(
         "name": "MIT",
         "url": "https://mit-license.org/"
     },
-    docs_url="swagger",
+    docs_url="/swagger",
+    redoc_url="/redoc",
     lifespan=lifespan,
     openapi_tags=tags_metadata
     )
