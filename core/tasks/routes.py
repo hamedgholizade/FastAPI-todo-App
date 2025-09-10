@@ -6,7 +6,8 @@ from fastapi import (
     Path,
     status,
     HTTPException,
-    Depends
+    Depends,
+    Query
 )
 
 from core.database import get_db
@@ -25,9 +26,16 @@ router = APIRouter(tags=["tasks"], prefix="/todo")
     status_code=status.HTTP_200_OK,
     response_model=List[TaskResponseSchema]
 )
-async def retrieve_tasks_list(db: Session = Depends(get_db)):
-    result = db.query(TaskModel).all()
-    return result
+async def retrieve_tasks_list(
+    completed: bool = Query(None, description="Filter tasks based on being completed or not"),
+    limit: int = Query(10, gt=0, le=50, description="Limit number of tasks to retrieve"),
+    offset: int = Query(0, ge=0, description="Use for paginating based on passed tasks"),
+    db: Session = Depends(get_db)
+    ):
+    query = db.query(TaskModel)
+    if completed is not None:
+        query = query.filter_by(is_completed=completed)
+    return query.limit(limit).offset(offset).all()
 
 
 @router.post(
