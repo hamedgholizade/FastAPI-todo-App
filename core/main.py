@@ -4,6 +4,8 @@ from fastapi import (
 from contextlib import asynccontextmanager
 
 from tasks.routes import router as tasks_routes
+from users.routes import router as users_routes
+
 
 tags_metadata = [
     {
@@ -22,8 +24,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Todo Application",
-    description="This is the section for description of todoapp",
-    version="0.0.1",
+    description=(
+        "A simple and efficient Todo management APIs built with FastAPI."
+        "This APIs allow users to create, retrieve, update and delete tasks."
+        "It is designed for task tracking and productivity improvment."
+        ),
+    version="1.0.0",
     contact={
         "name": "Hamed Gholizade",
         "email": "hamedabbasgholi33@gmail.com"
@@ -39,3 +45,4 @@ app = FastAPI(
     )
 
 app.include_router(tasks_routes)
+app.include_router(users_routes)
