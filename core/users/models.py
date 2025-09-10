@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
     Integer,
@@ -18,6 +19,7 @@ class UserModel(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(), default=datetime.now)
     updated_at = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
+    tasks = relationship("TaskModel", back_populates="user")
     
     def __repr__(self):
         return f"User(id={self.id}, username={self.username}, is_active={self.is_active})"
