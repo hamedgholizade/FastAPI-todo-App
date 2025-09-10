@@ -19,7 +19,7 @@ class TaskBaseSchema(BaseModel):
         description="Description of the task"
     )
     is_completed: bool = Field(
-        ...,
+        default=False,
         description="Status of the task"
     )
     
