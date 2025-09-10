@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from core.database import Base
 from tasks.models import *
+from users.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
