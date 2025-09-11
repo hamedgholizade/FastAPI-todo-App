@@ -5,7 +5,8 @@ from sqlalchemy import (
     Integer,
     String,
     DateTime,
-    Boolean
+    Boolean,
+    ForeignKey
 )
 from core.database import Base
 
@@ -23,3 +24,15 @@ class UserModel(Base):
     
     def __repr__(self):
         return f"User(id={self.id}, username={self.username}, is_active={self.is_active})"
+
+
+class Tokenmodel(Base):
+    __tablename__ = "tokens"
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    token = Column(String(), nullable=False)
+    created_at = Column(DateTime(), default=datetime.now)
+    
+    user = relationship("UserModel", uselist=False)
+    
