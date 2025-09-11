@@ -16,9 +16,13 @@ from users.schemas import (
 )
 from users.utils import (
     get_password_hash,
-    verify_password
+    verify_password,
+    generate_token
 )
-from users.models import UserModel
+from users.models import (
+    UserModel,
+    Tokenmodel
+)
 from core.database import get_db
 
 
@@ -38,10 +42,17 @@ async def user_login(
     if not verify_password(request.password, user_obj.password):
         raise HTTPException(
             detail="Password is invalid",
-            status_code=status.HTTP_406_NOT_ACCEPTABLE
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
+    token_obj = Tokenmodel(user_id=user_obj.id, token=generate_token())
+    db.add(token_obj)
+    db.commit()
+    db.refresh(token_obj)
     return JSONResponse(
-        content={"detail": "User logged in successfully"},
+        content={
+            "detail": "User logged in successfully",
+            "token": token_obj.token
+            },
         status_code=status.HTTP_202_ACCEPTED
     )
 

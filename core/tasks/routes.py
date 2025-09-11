@@ -1,6 +1,5 @@
 from typing import List
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
 from fastapi import (
     APIRouter,
     Path,
