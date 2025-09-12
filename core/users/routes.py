@@ -9,13 +9,15 @@ from fastapi import (
 
 from users.schemas import (
     UserLoginSchema,
-    UserRegisterSchema
+    UserRegisterSchema,
+    UserRefreshTokenSchema
 )
 from users.utils import (
     get_password_hash,
     verify_password,
     generate_access_token,
-    generate_refresh_token
+    generate_refresh_token,
+    decode_refresh_token
 )
 from users.models import UserModel
 from core.database import get_db
@@ -68,3 +70,20 @@ async def user_register(
         content={"detail": "User registered successfully"},
         status_code=status.HTTP_201_CREATED
     )
+
+@router.post("/refresh-token")
+async def refresh_token(
+    request: UserRefreshTokenSchema,
+    db: Session = Depends(get_db)
+    ):
+    user_id = decode_refresh_token(request.token)
+    if not db.query(UserModel).filter_by(id=user_id).one_or_none():
+            raise HTTPException(
+            detail="Invalid user_id in payload.",
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    return JSONResponse(
+        content={"access": generate_access_token(user_id)},
+        status_code=status.HTTP_200_OK
+    )
+
