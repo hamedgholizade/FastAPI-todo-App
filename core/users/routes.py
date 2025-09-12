@@ -1,13 +1,10 @@
-from typing import List
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from fastapi import (
     APIRouter,
-    Path,
     status,
     HTTPException,
-    Depends,
-    Query
+    Depends
 )
 
 from users.schemas import (
@@ -17,12 +14,10 @@ from users.schemas import (
 from users.utils import (
     get_password_hash,
     verify_password,
-    generate_token
+    generate_access_token,
+    generate_refresh_token
 )
-from users.models import (
-    UserModel,
-    Tokenmodel
-)
+from users.models import UserModel
 from core.database import get_db
 
 
@@ -44,14 +39,11 @@ async def user_login(
             detail="Password is invalid",
             status_code=status.HTTP_401_UNAUTHORIZED
         )
-    token_obj = Tokenmodel(user_id=user_obj.id, token=generate_token())
-    db.add(token_obj)
-    db.commit()
-    db.refresh(token_obj)
     return JSONResponse(
         content={
             "detail": "User logged in successfully",
-            "token": token_obj.token
+            "access": generate_access_token(user_obj.id),
+            "refresh": generate_refresh_token(user_obj.id)
             },
         status_code=status.HTTP_202_ACCEPTED
     )
