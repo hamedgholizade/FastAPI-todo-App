@@ -11,6 +11,8 @@ from fastapi import (
 
 from core.database import get_db
 from tasks.models import TaskModel
+from users.models import UserModel
+from auth.jwt_auth import get_authenticated_user
 from tasks.schemas import (
     TaskCreateSchema,
     TaskUpdateSchema,
@@ -29,9 +31,10 @@ async def retrieve_tasks_list(
     completed: bool = Query(None, description="Filter tasks based on being completed or not"),
     limit: int = Query(10, gt=0, le=50, description="Limit number of tasks to retrieve"),
     offset: int = Query(0, ge=0, description="Use for paginating based on passed tasks"),
+    user: UserModel = Depends(get_authenticated_user),
     db: Session = Depends(get_db)
     ):
-    query = db.query(TaskModel)
+    query = db.query(TaskModel).filter_by(user_id=user.id)
     if completed is not None:
         query = query.filter_by(is_completed=completed)
     return query.limit(limit).offset(offset).all()
@@ -44,9 +47,12 @@ async def retrieve_tasks_list(
 )
 async def create_task(
     request: TaskCreateSchema,
+    user: UserModel = Depends(get_authenticated_user),
     db: Session = Depends(get_db)
     ):
-    task_obj = TaskModel(**request.model_dump())
+    data = request.model_dump()
+    data["user_id"] = user.id
+    task_obj = TaskModel(**data)
     db.add(task_obj)
     db.commit()
     db.refresh(task_obj)
@@ -60,9 +66,10 @@ async def create_task(
 )
 async def retrieve_tasks_detail(
     task_id: int = Path(..., gt=0),
+    user: UserModel = Depends(get_authenticated_user),
     db: Session = Depends(get_db)
     ):
-    task_obj = db.query(TaskModel).filter_by(id=task_id).first()
+    task_obj = db.query(TaskModel).filter_by(id=task_id, user_id=user.id).first()
     if not task_obj:
         raise HTTPException(
             detail="Task not found",
@@ -79,9 +86,10 @@ async def retrieve_tasks_detail(
 async def update_tasks_detail(
     request: TaskUpdateSchema,
     task_id: int = Path(..., gt=0),
+    user: UserModel = Depends(get_authenticated_user),
     db: Session = Depends(get_db)
     ):
-    task_obj = db.query(TaskModel).filter_by(id=task_id).first()
+    task_obj = db.query(TaskModel).filter_by(id=task_id, user_id=user.id).first()
     if not task_obj:
         raise HTTPException(
             detail="Task not found",
@@ -100,9 +108,10 @@ async def update_tasks_detail(
 )
 async def delete_tasks_detail(
     task_id: int = Path(..., gt=0),
+    user: UserModel = Depends(get_authenticated_user),
     db: Session = Depends(get_db)
     ):
-    task_obj = db.query(TaskModel).filter_by(id=task_id).first()
+    task_obj = db.query(TaskModel).filter_by(id=task_id, user_id=user.id).first()
     if not task_obj:
         raise HTTPException(
             detail="Task not found",
