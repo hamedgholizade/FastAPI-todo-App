@@ -26,11 +26,12 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
     user_obj = db.query(UserModel).filter_by(username=request.username).first()
     if not user_obj:
         raise HTTPException(
-            detail="User doesn't exist", status_code=status.HTTP_404_NOT_FOUND
+            detail="Invalid username or password",
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
     if not verify_password(request.password, user_obj.password):
         raise HTTPException(
-            detail="Password is invalid",
+            detail="Invalid username or password",
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
     return JSONResponse(
@@ -39,7 +40,7 @@ async def user_login(request: UserLoginSchema, db: Session = Depends(get_db)):
             "access": generate_access_token(user_obj.id),
             "refresh": generate_refresh_token(user_obj.id),
         },
-        status_code=status.HTTP_202_ACCEPTED,
+        status_code=status.HTTP_200_OK
     )
 
 
