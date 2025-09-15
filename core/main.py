@@ -6,9 +6,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
+
+
+# Advanced Python Scheduler
+
+
+scheduler = AsyncIOScheduler()
+
+
+def my_task():
+    print(f"Task executed at {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 
 tags_metadata = [
@@ -19,7 +31,10 @@ tags_metadata = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Application starting up")
+    scheduler.add_job(my_task, IntervalTrigger(seconds=10))
+    scheduler.start()
     yield
+    scheduler.shutdown()
     print("Application shutting down")
 
 
@@ -88,8 +103,7 @@ async def http_validation_exception_handler(request, exc):
         "content": exc.errors(),
     }
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=error_response
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=error_response
     )
 
 
