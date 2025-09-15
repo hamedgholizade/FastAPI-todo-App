@@ -10,16 +10,23 @@ from core.config import settings
 from users.models import UserModel
 
 
-security = HTTPBearer(scheme_name="Token")
+security = HTTPBearer(scheme_name="Token", auto_error=False)
 
 
 def get_authenticated_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ):
+    # Check if credentials are not provided
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication failed, token not provided",
+        )
+    token = credentials.credentials
     try:
         decoded_token = jwt.decode(
-            jwt=credentials.credentials,
+            jwt=token,
             key=settings.JWT_SECRET_KEY,
             algorithms="HS256",
         )
