@@ -1,5 +1,6 @@
 import time
-from fastapi import FastAPI, Request, status
+import random
+from fastapi import FastAPI, Request, status, BackgroundTasks
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -90,3 +91,18 @@ async def http_validation_exception_handler(request, exc):
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=error_response
     )
+
+
+# background task handling
+
+
+def start_task(task_id):
+    print(f"doing the process: {task_id}")
+    time.sleep(task_id)
+    print(f"finished task {task_id}")
+
+
+@app.get("/initiate-task", status_code=200)
+async def initiate_task(background_tasks: BackgroundTasks):
+    background_tasks.add_task(start_task, task_id=random.randint(5, 15))
+    return JSONResponse(content={"detail": "task is done"})
