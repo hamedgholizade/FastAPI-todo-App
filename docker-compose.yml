@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17.5-alpine
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: myfastdevdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "myuser", "-d", "myfastdevdb"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - db
+    environment:
+      - SQLARCHEMY_DATABASE_URL_POSTGRES=postgresql://myuser:mypass@db:5432/myfastdevdb
+      - JWT_SECRET_KEY=testdocker
+    ports:
+      - "8000:8000"
+    command: bash -c 'fastapi dev --host 0.0.0.0 --port 8000'
+    volumes:
+      - ./core:/usr/src/core
+volumes:
+  postgres_data:
