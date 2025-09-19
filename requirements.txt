@@ -1,9 +1,11 @@
+aiosmtplib==3.0.2
 alembic==1.16.5
 annotated-types==0.7.0
 anyio==4.10.0
 APScheduler==3.11.0
 bcrypt==4.0.1
 black==25.1.0
+blinker==1.9.0
 certifi==2025.8.3
 click==8.2.1
 dnspython==2.8.0
@@ -13,6 +15,7 @@ fastapi==0.116.1
 fastapi-cache2==0.2.2
 fastapi-cli==0.0.10
 fastapi-cloud-cli==0.1.5
+fastapi-mail==1.5.0
 flake8==7.3.0
 greenlet==3.2.4
 h11==0.16.0
@@ -51,6 +54,7 @@ python-dotenv==1.1.1
 python-multipart==0.0.20
 PyYAML==6.0.2
 redis==4.6.0
+rfc3986==1.5.0
 rich==14.1.0
 rich-toolkit==0.15.1
 rignore==0.6.4
