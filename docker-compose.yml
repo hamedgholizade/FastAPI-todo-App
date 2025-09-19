@@ -15,15 +15,23 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+  redis:
+    image: redis:7.4.0-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
   backend:
     build: 
       context: .
       dockerfile: Dockerfile.dev
     depends_on:
       - db
-    environment:
-      - SQLARCHEMY_DATABASE_URL_POSTGRES=postgresql://myuser:mypass@db:5432/myfastdevdb
-      - JWT_SECRET_KEY=testdocker
+      - redis
+    env_file:
+      - ./core/.env
     ports:
       - "8000:8000"
     command: bash -c 'fastapi dev --host 0.0.0.0 --port 8000'
