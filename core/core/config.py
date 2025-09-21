@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     MAIL_STARTTLS: bool = False
     MAIL_SSL_TLS: bool = False
     USE_CREDENTIALS: bool = False
+    # Celery configuration
+    CELERY_BACKEND_URL: str
+    CELERY_BROKER_URL: str
     
     model_config = SettingsConfigDict(env_file=".env")
 
