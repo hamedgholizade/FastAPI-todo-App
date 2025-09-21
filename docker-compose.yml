@@ -51,6 +51,42 @@ services:
     working_dir: /mnt/locust
     command: -f locustfile.py
 
+  celery_worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./core/.env
+    command: bash -c 'celery -A core.celery_conf worker --loglevel=info'
+    volumes:
+      - ./core:/usr/src/core
+    
+  celery_beat:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./core/.env
+    command: bash -c 'celery -A core.celery_conf beat --loglevel=info'
+    volumes:
+      - ./core:/usr/src/core
+
+  flower:
+    image: mher/flower:0.9.7
+    command: ["flower", "--broker=redis://redis:6379/3", "--port=5555"]
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+      - celery_worker
+      - celery_beat
+
   backend:
     build: 
       context: .
