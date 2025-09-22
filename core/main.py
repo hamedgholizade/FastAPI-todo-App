@@ -122,8 +122,13 @@ async def http_validation_exception_handler(request, exc):
     )
 
 
-# background task handling
+# Readiness task
 
+@app.get("/is-ready", status_code=200)
+async def readiness_task():
+    return JSONResponse(content={"detail": "Ready"})
+
+# background task handling
 
 def start_task(task_id):
     print(f"doing the process: {task_id}")
