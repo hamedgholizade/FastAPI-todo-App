@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # Celery configuration
     CELERY_BACKEND_URL: str
     CELERY_BROKER_URL: str
+    # Sentry URL
+    SENTRY_DSN: str
     
     model_config = SettingsConfigDict(env_file=".env")
 

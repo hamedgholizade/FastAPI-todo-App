@@ -9,14 +9,23 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+import sentry_sdk
 
 from tasks.routes import router as tasks_routes
 from users.routes import router as users_routes
 from core.config import settings
 
 
-# Advanced Python Scheduler
+# Sentry configurations
 
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+)
+
+# Advanced Python Scheduler
 
 scheduler = AsyncIOScheduler()
 
@@ -196,3 +205,8 @@ async def test_send_mail():
         body="This is a test email sent using the email_util function."
     )
     return JSONResponse(content={"detail": "Email has been sent"})
+
+
+@app.get("/sentry-debug")
+async def trigger_error():
+    division_by_zero = 1 / 0
